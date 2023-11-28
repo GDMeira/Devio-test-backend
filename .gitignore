@@ -1,0 +1,12 @@
+.env.test
+.env.development
+.env
+
+node_modules
+
+coverage
+
+.vscode
+
+build
+dist
