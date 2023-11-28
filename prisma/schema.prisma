@@ -3,7 +3,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -11,7 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Test {
+model Product {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name String
+
+
+  @@map("products")
 }

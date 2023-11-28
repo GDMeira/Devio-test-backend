@@ -19,7 +19,10 @@ module.exports = {
     ],
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error"],
-    "import/extensions": ["error", "never"],
+    "import/extensions": ["error", {
+      js: 'never',
+      json: 'aways' 
+    }],
     "no-shadow": "off",
     "@typescript-eslint/no-shadow": ["error"],
     "@typescript-eslint/explicit-module-boundary-types": 0,
