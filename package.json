@@ -30,8 +30,7 @@
     "dev:seed": "npm run dev:load-envs prisma db seed",
     "dev": "cross-env NODE_ENV=development nodemon --watch 'src/' --exec 'ts-node -r tsconfig-paths/register ./src/server.ts' -e ts",
     "lint": "eslint . --fix",
-    "prepare": "husky install",
-    "swagger-autogen": "node ./src/swagger/swagger.ts"
+    "prepare": "husky install"
   },
   "keywords": [
     "Express",
@@ -87,7 +86,6 @@
     "joi": "^17.11.0",
     "reflect-metadata": "^0.1.13",
     "string-strip-html": "^8.5.0",
-    "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.0"
   }
 }

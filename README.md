@@ -1,10 +1,13 @@
-# application name - Back-end
+# OrderManager API - Back-end
 
-Back-end for application short description.
+The OrderManager API helps your restaurant manage its orders.
 
 ## About
 
-Application description
+This API enables users to place orders, with or without observations, and choose from multiple payment methods. The kitchen receives the order and can update the order status to ready or cancelled. There is an endpoint to display the ready orders that have not been picked up and the unfinished orders.
+
+Deploy link on Render:
+[OrderManager API]()
 
 ## How to run for development
 
