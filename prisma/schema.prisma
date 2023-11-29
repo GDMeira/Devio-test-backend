@@ -18,18 +18,18 @@ enum ProductType {
 }
 
 model Product {
-  id            Int             @id @default(autoincrement())
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  name          String          @db.VarChar(50)
-  description   String          @db.VarChar(255)
-  price         Int
-  productType   ProductType
-  discount      Int             @default(0)
-  isAvaiable    Boolean         @default(true)
-  selledTimes   Int             @default(0)
-  extras        Extra[]
-  itens         Item[]
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  name        String      @db.VarChar(50)
+  description String      @db.VarChar(255)
+  price       Int
+  productType ProductType
+  discount    Int         @default(0)
+  isAvaiable  Boolean     @default(true)
+  selledTimes Int         @default(0)
+  image       String?
+  itens       Item[]
 
   @@map("products")
 }
@@ -44,7 +44,7 @@ model Extra {
   productType ProductType
   discount    Int         @default(0)
   isAvaiable  Boolean     @default(true)
-  products    Product[]
+  image       String?
   itens       Item[]
 
   @@map("extras")
