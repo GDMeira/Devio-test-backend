@@ -11,7 +11,7 @@ datasource db {
 }
 
 enum ProductType {
-  HAMBURGUER
+  BURGUER
   DRINK
   DESSERT
   SIDEDISHE
@@ -69,7 +69,7 @@ model Order {
   clientName    String          @db.VarChar(50)
   discount      Int             @default(0)
   orderStatus   OrderStatus     @default(PROCESSING)
-  ItensOnOrders ItensOnOrders[]
+  itensInOrders ItensInOrders[]
 
   @@map("orders")
 }
@@ -82,12 +82,12 @@ model Item {
   product       Product         @relation(fields: [productId], references: [id])
   productId     Int
   extras        Extra[]
-  ItensOnOrders ItensOnOrders[]
+  itensInOrders ItensInOrders[]
 
   @@map("itens")
 }
 
-model ItensOnOrders {
+model ItensInOrders {
   order     Order    @relation(fields: [orderId], references: [id])
   orderId   Int
   item      Item     @relation(fields: [itemId], references: [id])
