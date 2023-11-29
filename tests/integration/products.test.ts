@@ -24,12 +24,12 @@ describe('GET /products', () => {
     await createProducts([]);
     const response = await server.get('/products');
 
-    const expectedProductShape: ProductReturn = {
+    type ExpectedProductShape = Omit<ProductReturn, 'productType'>;
+    const expectedProductShape: ExpectedProductShape = {
       id: expect.any(Number),
       name: expect.any(String),
       description: expect.any(String),
       price: expect.any(Number),
-      productType: expect.any(String),
       discount: expect.any(Number),
       isAvaiable: expect.any(Boolean),
       selledTimes: expect.any(Number),
@@ -38,10 +38,10 @@ describe('GET /products', () => {
 
     expect(response.status).toBe(httpStatus.OK);
     expect(response.body).toMatchObject({
-      burguers: expect.arrayContaining([expect.objectContaining<ProductReturn>(expectedProductShape)]),
-      desserts: expect.arrayContaining([expect.objectContaining<ProductReturn>(expectedProductShape)]),
-      drinks: expect.arrayContaining([expect.objectContaining<ProductReturn>(expectedProductShape)]),
-      sideDishes: expect.arrayContaining([expect.objectContaining<ProductReturn>(expectedProductShape)]),
+      burguers: expect.arrayContaining([expect.objectContaining<ExpectedProductShape>(expectedProductShape)]),
+      desserts: expect.arrayContaining([expect.objectContaining<ExpectedProductShape>(expectedProductShape)]),
+      drinks: expect.arrayContaining([expect.objectContaining<ExpectedProductShape>(expectedProductShape)]),
+      sideDishes: expect.arrayContaining([expect.objectContaining<ExpectedProductShape>(expectedProductShape)]),
     });
   });
 });

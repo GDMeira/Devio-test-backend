@@ -27,7 +27,7 @@ export function createProducts(data: Prisma.ProductUncheckedCreateInput[] | unde
   if (!data || data.length === 0) {
     const newData = generateProducts();
 
-    return prisma.extra.createMany({
+    return prisma.product.createMany({
       data: newData,
     });
   }
