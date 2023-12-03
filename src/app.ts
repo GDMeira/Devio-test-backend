@@ -6,7 +6,7 @@ import cors from 'cors';
 import swaggerFile from '@/swagger/swagger_output.json';
 import { handleApplicationErrors, stringStripHtml } from '@/middlewares';
 import { loadEnv, connectDb, disconnectDB } from '@/config';
-import { productsRouter } from './routers';
+import { extrasRouter, productsRouter } from './routers';
 
 loadEnv();
 
@@ -18,6 +18,7 @@ app
   .all('/*', stringStripHtml)
   .get('/health', (_req, res) => res.send('OK!'))
   .use('/products', productsRouter)
+  .use('/extras', extrasRouter)
 
   .use(handleApplicationErrors);
 
