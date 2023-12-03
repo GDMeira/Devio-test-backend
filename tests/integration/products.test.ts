@@ -24,7 +24,7 @@ describe('GET /products', () => {
     await createProducts([]);
     const response = await server.get('/products');
 
-    type ExpectedProductShape = Omit<ProductReturn, 'productType'>;
+    type ExpectedProductShape = ProductReturn;
     const expectedProductShape: ExpectedProductShape = {
       id: expect.any(Number),
       name: expect.any(String),
@@ -34,6 +34,7 @@ describe('GET /products', () => {
       isAvaiable: expect.any(Boolean),
       selledTimes: expect.any(Number),
       image: expect.any(String),
+      productType: expect.any(String),
     };
 
     expect(response.status).toBe(httpStatus.OK);

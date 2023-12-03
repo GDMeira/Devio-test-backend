@@ -1,6 +1,5 @@
 import { ProductReturn, ProductsResponse } from '@/protocols';
 import { productsRepository } from '@/repositories';
-import { exclude } from '@/utils';
 import { ProductType } from '@prisma/client';
 
 function fitProductsResponse(products: ProductReturn[]) {
@@ -16,19 +15,19 @@ function fitProductsResponse(products: ProductReturn[]) {
 
     switch (product.productType) {
       case ProductType.BURGUER:
-        productsResponse.burguers.push(exclude(product, 'productType'));
+        productsResponse.burguers.push(product);
         break;
 
       case ProductType.DESSERT:
-        productsResponse.desserts.push(exclude(product, 'productType'));
+        productsResponse.desserts.push(product);
         break;
 
       case ProductType.DRINK:
-        productsResponse.drinks.push(exclude(product, 'productType'));
+        productsResponse.drinks.push(product);
         break;
 
       case ProductType.SIDEDISHE:
-        productsResponse.sideDishes.push(exclude(product, 'productType'));
+        productsResponse.sideDishes.push(product);
         break;
 
       default:
