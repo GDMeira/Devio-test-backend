@@ -1,9 +1,9 @@
 import httpStatus from 'http-status';
 import supertest from 'supertest';
 import app, { close, init } from '@/app';
-import { ProductReturn } from '@/protocols';
+import { ExtraReturn } from '@/protocols';
 import { cleanDb } from '../helpers';
-import { createProducts } from '../factories';
+import { createExtras } from '../factories';
 
 const server = supertest(app);
 
@@ -19,12 +19,12 @@ afterAll(async () => {
   await close();
 });
 
-describe('GET /products', () => {
-  it('should respond with status 200 and an object with arrays of products for each product type', async () => {
-    await createProducts([]);
-    const response = await server.get('/products');
+describe('GET /extras', () => {
+  it('should respond with status 200 and an object with arrays of extras for each product type', async () => {
+    await createExtras([]);
+    const response = await server.get('/extras');
 
-    type ExpectedProductShape = ProductReturn;
+    type ExpectedProductShape = ExtraReturn;
     const expectedProductShape: ExpectedProductShape = {
       id: expect.any(Number),
       name: expect.any(String),
@@ -32,7 +32,6 @@ describe('GET /products', () => {
       price: expect.any(Number),
       discount: expect.any(Number),
       isAvaiable: expect.any(Boolean),
-      selledTimes: expect.any(Number),
       image: expect.any(String),
       productType: expect.any(String),
     };
