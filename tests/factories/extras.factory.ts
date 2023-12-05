@@ -1,23 +1,23 @@
-import { Prisma, ProductType } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-import { prisma, connectDb, disconnectDB } from '../../src/config';
+import { prisma, connectDb } from '../../src/config';
+import { productTypes } from '../helpers';
 
 connectDb();
 
-function generateExtras() {
+export function generateExtras(extrasNum: number = 16) {
   const data: Prisma.ExtraUncheckedCreateInput[] = [];
-  const productTypes = [ProductType.DESSERT, ProductType.DRINK, ProductType.BURGUER, ProductType.SIDEDISHE];
   const extraType = ['Chocolate', 'juice', 'sauce', 'finger food'];
 
-  for (let i = 0; i < 16; i += 1) {
-    const newProduct: Prisma.ExtraUncheckedCreateInput = {
+  for (let i = 0; i < extrasNum; i += 1) {
+    const newExtra: Prisma.ExtraUncheckedCreateInput = {
       name: faker.lorem.word(),
       description: faker.lorem.sentence(),
       price: faker.number.int({ min: 50, max: 999 }),
       productType: productTypes[i % 4],
       image: faker.image.urlLoremFlickr({ category: extraType[i % 4], width: 480 }),
     };
-    data.push(newProduct);
+    data.push(newExtra);
   }
 
   return data;
@@ -26,16 +26,22 @@ function generateExtras() {
 export function createExtras(data: Prisma.ExtraUncheckedCreateInput[] | undefined) {
   if (!data || data.length === 0) {
     const newData = generateExtras();
-
-    return prisma.extra.createMany({
+    const extras = prisma.extra.createMany({
       data: newData,
     });
+
+    return extras;
   }
 
   const extras = prisma.extra.createMany({
     data,
   });
-  disconnectDB();
 
   return extras;
+}
+
+export function retrieveExtra(extraName: string) {
+  return prisma.extra.findFirst({
+    where: { name: extraName },
+  });
 }
