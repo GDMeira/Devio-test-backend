@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { Prisma, ProductType } from '@prisma/client';
-import { prisma, connectDb } from '../../src/config';
+import { prisma, connectDb, disconnectDB } from '../../src/config';
 
 connectDb();
 
@@ -32,7 +32,10 @@ export function createProducts(data: Prisma.ProductUncheckedCreateInput[] | unde
     });
   }
 
-  return prisma.product.createMany({
+  const products = prisma.product.createMany({
     data,
   });
+  disconnectDB();
+
+  return products;
 }

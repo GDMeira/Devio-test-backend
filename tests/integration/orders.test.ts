@@ -28,6 +28,10 @@ describe('GET /orders/code', () => {
 
     expect(response.status).toBe(httpStatus.OK);
     // eslint-disable-next-line no-underscore-dangle
-    expect(response.body).toEqual({ code: code._max });
+    expect(response.body).toEqual({ code: code._max.id || 1 });
   });
+});
+
+describe('POST /orders', () => {
+  it('should respond with status 201 and create the order', async () => {});
 });
