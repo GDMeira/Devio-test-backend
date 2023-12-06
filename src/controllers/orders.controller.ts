@@ -11,7 +11,7 @@ export async function getCode(_req: Request, res: Response) {
 
 export async function postOrder(req: Request, res: Response) {
   const order = req.body as ReceivedOrder;
-  await ordersService.postOrder(order);
+  const createdOrder = await ordersService.postOrder(order);
 
-  res.sendStatus(httpStatus.CREATED);
+  res.status(httpStatus.CREATED).send({ code: createdOrder.id });
 }

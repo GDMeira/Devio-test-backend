@@ -38,9 +38,11 @@ async function checkItens(itens: ReceivedItem[], orderId: number): Promise<Check
 
     let paidPrice = product.price - product.discount;
 
-    extras.forEach(extra => {
-      paidPrice += extra.price - extra.discount;
-    });
+    if (item.extras.length > 0) {
+      extras.forEach(extra => {
+        paidPrice += extra.price - extra.discount;
+      });
+    }
 
     const newItem: CheckedItem = {
       productId: item.productId,
@@ -49,6 +51,7 @@ async function checkItens(itens: ReceivedItem[], orderId: number): Promise<Check
       paidPrice: item.quantity * paidPrice,
       extras: { connect: item.extras.map(extraId => ({ id: extraId })) },
     };
+
     checkedItens.push(newItem);
   }
 
