@@ -89,4 +89,50 @@ describe('POST /orders', () => {
 
     expect(response.status).toBe(httpStatus.UNPROCESSABLE_ENTITY);
   });
+
+  it('should respond with status 404 if product does not exist', async () => {
+    const itens = await generateItens();
+    itens[0].productId += 1000;
+    const order = generateOrder(itens);
+
+    const response = await server.post('/orders').send(order);
+
+    expect(response.status).toBe(httpStatus.NOT_FOUND);
+  });
+
+  it('should respond with status 404 if extra does not exist', async () => {
+    const itens = await generateItens();
+    itens[0].extras[0] += 1000;
+    const order = generateOrder(itens);
+
+    const response = await server.post('/orders').send(order);
+
+    expect(response.status).toBe(httpStatus.NOT_FOUND);
+  });
+
+  it('should respond with status 400 if a product is unavaiable', async () => {
+    const itens = await generateItens();
+    await prisma.product.update({
+      where: { id: itens[0].productId },
+      data: { isAvaiable: false },
+    });
+    const order = generateOrder(itens);
+
+    const response = await server.post('/orders').send(order);
+
+    expect(response.status).toBe(httpStatus.BAD_REQUEST);
+  });
+
+  it('should respond with status 400 if a product is unavaiable', async () => {
+    const itens = await generateItens();
+    await prisma.extra.update({
+      where: { id: itens[0].extras[0] },
+      data: { isAvaiable: false },
+    });
+    const order = generateOrder(itens);
+
+    const response = await server.post('/orders').send(order);
+
+    expect(response.status).toBe(httpStatus.BAD_REQUEST);
+  });
 });

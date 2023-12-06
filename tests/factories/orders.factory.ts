@@ -1,25 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { PaidWith } from '@prisma/client';
+import { ReceivedItem, ReceivedOrder } from '@/protocols';
 import { connectDb } from '../../src/config';
 import { createExtras, generateExtras, retrieveExtra } from './extras.factory';
 import { createProducts, generateProducts, retrieveProduct } from './products.factory';
-import { paidWith } from '../helpers';
+import { paidWith } from '../../src/utils';
 
 connectDb();
-
-type ReceivedItem = {
-  productId: number;
-  extras: number[];
-  quantity: number;
-  note: string;
-};
-
-type ReceivedOrder = {
-  itens: ReceivedItem[];
-  clientName: string;
-  discount?: number;
-  paymentMethod: PaidWith;
-};
 
 export async function generateItens(itensNum: number = 3) {
   const itens: ReceivedItem[] = [];

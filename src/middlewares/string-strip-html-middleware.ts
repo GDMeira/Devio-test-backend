@@ -1,27 +1,28 @@
 import { Request, Response, NextFunction } from 'express';
-import { stripHtml } from 'string-strip-html';
+import { stripHtml, Res } from 'string-strip-html';
+
+function recursivelyStripHtml<T, K extends keyof T>(data: T): T {
+  if (Array.isArray(data)) {
+    return data.map(item => recursivelyStripHtml(item)) as T;
+  }
+  if (typeof data === 'object' && data !== null) {
+    const result: T = { ...data };
+
+    Object.keys(data).forEach(key => {
+      result[key as K] = recursivelyStripHtml(data[key as K]);
+    });
+    return result as T;
+  }
+  if (typeof data === 'string') {
+    const stripped: Res = stripHtml(data);
+    return stripped.result.trim() as T;
+  }
+  return data as T;
+}
 
 export function stringStripHtml(req: Request, res: Response, next: NextFunction) {
-  Object.keys(req.body).forEach(key => {
-    if (typeof req.body[key] === 'string') {
-      req.body[key] = stripHtml(req.body[key]).result;
-      req.body[key] = req.body[key].trim();
-    }
-  });
-
-  Object.keys(req.query).forEach(key => {
-    if (typeof req.query[key] === 'string') {
-      req.query[key] = stripHtml(req.query[key] as string).result;
-      req.query[key] = (req.query[key] as string).trim();
-    }
-  });
-
-  Object.keys(req.params).forEach(key => {
-    if (typeof req.params[key] === 'string') {
-      req.params[key] = stripHtml(req.params[key] as string).result;
-      req.params[key] = (req.params[key] as string).trim();
-    }
-  });
-
+  req.body = recursivelyStripHtml(req.body);
+  req.query = recursivelyStripHtml(req.query);
+  req.params = recursivelyStripHtml(req.params);
   next();
 }

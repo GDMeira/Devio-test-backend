@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import { prisma, connectDb } from '../../src/config';
-import { productTypes } from '../helpers';
+import { productTypes } from '../../src/utils';
 
 connectDb();
 

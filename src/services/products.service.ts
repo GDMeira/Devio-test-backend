@@ -1,6 +1,6 @@
 import { ProductReturn, ProductsResponse } from '@/protocols';
 import { productsRepository } from '@/repositories';
-import { segregateByProductType } from '@/utils/constants';
+import { segregateByProductType } from '@/utils';
 
 async function getProducts() {
   const products: ProductReturn[] = await productsRepository.retrieveProducts();

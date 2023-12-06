@@ -1,8 +1,12 @@
-import { ProductType } from '@prisma/client';
+import { PaidWith, ProductType } from '@prisma/client';
 
 interface ItemWithProductType {
   productType: ProductType;
 }
+
+export const productTypes = [ProductType.DESSERT, ProductType.DRINK, ProductType.BURGUER, ProductType.SIDEDISHE];
+
+export const paidWith = [PaidWith.CASH, PaidWith.CREDITCARD, PaidWith.DEBITCARD];
 
 export function segregateByProductType<T extends ItemWithProductType>(data: T[]) {
   type ResponseType = {
