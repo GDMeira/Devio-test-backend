@@ -1,14 +1,14 @@
 import { faker } from '@faker-js/faker';
-import { Prisma, ProductType } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { prisma, connectDb } from '../../src/config';
+import { productTypes } from '../../src/utils';
 
 connectDb();
 
-function generateProducts() {
+export function generateProducts(productsNum: number = 48) {
   const data: Prisma.ProductUncheckedCreateInput[] = [];
-  const productTypes = [ProductType.DESSERT, ProductType.DRINK, ProductType.BURGUER, ProductType.SIDEDISHE];
 
-  for (let i = 0; i < 48; i += 1) {
+  for (let i = 0; i < productsNum; i += 1) {
     const newProduct: Prisma.ProductUncheckedCreateInput = {
       name: faker.lorem.word(),
       description: faker.lorem.sentence(),
@@ -26,13 +26,22 @@ function generateProducts() {
 export function createProducts(data: Prisma.ProductUncheckedCreateInput[] | undefined) {
   if (!data || data.length === 0) {
     const newData = generateProducts();
-
-    return prisma.product.createMany({
+    const products = prisma.product.createMany({
       data: newData,
     });
+
+    return products;
   }
 
-  return prisma.product.createMany({
+  const products = prisma.product.createMany({
     data,
+  });
+
+  return products;
+}
+
+export function retrieveProduct(productName: string) {
+  return prisma.product.findFirst({
+    where: { name: productName },
   });
 }
