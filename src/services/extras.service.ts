@@ -1,6 +1,6 @@
 import { ExtraReturn, ExtrasResponse } from '@/protocols';
 import { extrasRepository } from '@/repositories';
-import { segregateByProductType } from '@/utils/constants';
+import { segregateByProductType } from '@/utils';
 
 async function getExtras() {
   const extras: ExtraReturn[] = await extrasRepository.retrieveExtras();
