@@ -6,8 +6,9 @@ The OrderManager API helps your restaurant manage its orders.
 
 This API enables users to place orders, with or without observations, and choose from multiple payment methods. The kitchen receives the order and can update the order status to ready or cancelled. There is an endpoint to display the ready orders that have not been picked up and the unfinished orders.
 
-Deploy link on Render:
-[OrderManager API]()
+[OrderManager API Deploy](https://ordermanager-api.onrender.com)
+
+[Documentation](https://ordermanager-api.onrender.com/doc)
 
 ## How to run for development
 
