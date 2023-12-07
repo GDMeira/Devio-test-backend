@@ -98,3 +98,21 @@ export async function createOrder(orderNum: number = 3) {
     await createItens(order.id, faker.number.int({ min: 1, max: 3 }));
   }
 }
+
+export async function createOneOrder(orderStatus: OrderStatus = OrderStatus.PROCESSING) {
+  const orderData = generateOrder([]);
+
+  // eslint-disable-next-line no-await-in-loop
+  const order = await prisma.order.create({
+    data: {
+      clientName: orderData.clientName,
+      paymentMethod: orderData.paymentMethod,
+      orderStatus,
+    },
+  });
+
+  // eslint-disable-next-line no-await-in-loop
+  await createItens(order.id, faker.number.int({ min: 1, max: 3 }));
+
+  return order;
+}

@@ -3,8 +3,9 @@ import supertest from 'supertest';
 import app, { close, init } from '@/app';
 import { prisma } from '@/config';
 import { faker } from '@faker-js/faker';
+import { OrderStatus } from '@prisma/client';
 import { cleanDb } from '../helpers';
-import { createOrder, generateItens, generateOrder } from '../factories';
+import { createOneOrder, createOrder, generateItens, generateOrder } from '../factories';
 
 const server = supertest(app);
 
@@ -192,5 +193,86 @@ describe('GET /orders', () => {
       processing: expect.arrayContaining([expect.objectContaining<ExpectedOrderShape>(expectedOrderShape)]),
       ready: expect.arrayContaining([expect.objectContaining<ExpectedOrderShape>(expectedOrderShape)]),
     });
+  });
+});
+
+describe('PATCH /orders/:orderId', () => {
+  it('should respond with status 204 and update the order status to ready', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = OrderStatus.READY;
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.NO_CONTENT);
+    expect(updatedOrder.orderStatus).toBe(newStatus);
+  });
+
+  it('should respond with status 204 and update the order status to canceld', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = OrderStatus.CANCELED;
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.NO_CONTENT);
+    expect(updatedOrder.orderStatus).toBe(newStatus);
+  });
+
+  it('should respond with status 204 and update the order status to delivered', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = OrderStatus.DELIVERED;
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.NO_CONTENT);
+    expect(updatedOrder.orderStatus).toBe(newStatus);
+  });
+
+  it('should respond with status 404 if the order does not exist', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = OrderStatus.DELIVERED;
+
+    const response = await server.patch(`/orders/${order.id + 1}`).send({ newStatus });
+
+    expect(response.status).toBe(httpStatus.NOT_FOUND);
+  });
+
+  it('should respond with status 422 if the new status is not valid', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = faker.lorem.word();
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.UNPROCESSABLE_ENTITY);
+    expect(updatedOrder.orderStatus).toBe(order.orderStatus);
+  });
+
+  it('should respond with status 409 if the order is already delivered', async () => {
+    const order = await createOneOrder(OrderStatus.DELIVERED);
+    const newStatus = OrderStatus.PROCESSING;
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+    expect(updatedOrder.orderStatus).toBe(order.orderStatus);
   });
 });
