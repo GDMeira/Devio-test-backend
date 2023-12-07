@@ -54,6 +54,7 @@ enum OrderStatus {
   CANCELED
   PROCESSING
   READY
+  DELIVERED
 }
 
 enum PaidWith {
