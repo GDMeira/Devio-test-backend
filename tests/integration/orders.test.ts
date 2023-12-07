@@ -262,9 +262,23 @@ describe('PATCH /orders/:orderId', () => {
     expect(updatedOrder.orderStatus).toBe(order.orderStatus);
   });
 
-  it('should respond with status 409 if the order is already delivered', async () => {
+  it('should respond with status 422 if the orderId is not valid', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = OrderStatus.READY;
+
+    const response = await server.patch(`/orders/${faker.number.float({ min: -100, max: 0 })}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.UNPROCESSABLE_ENTITY);
+    expect(updatedOrder.orderStatus).toBe(order.orderStatus);
+  });
+
+  it('should respond with status 401 if the order is already delivered', async () => {
     const order = await createOneOrder(OrderStatus.DELIVERED);
-    const newStatus = OrderStatus.PROCESSING;
+    const newStatus = OrderStatus.READY;
 
     const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
 
@@ -272,7 +286,21 @@ describe('PATCH /orders/:orderId', () => {
       where: { id: order.id },
     });
 
-    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+    expect(response.status).toBe(httpStatus.CONFLICT);
+    expect(updatedOrder.orderStatus).toBe(order.orderStatus);
+  });
+
+  it('should respond with status 401 if the order is already canceled', async () => {
+    const order = await createOneOrder(OrderStatus.CANCELED);
+    const newStatus = OrderStatus.READY;
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.CONFLICT);
     expect(updatedOrder.orderStatus).toBe(order.orderStatus);
   });
 });

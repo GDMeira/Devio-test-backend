@@ -60,9 +60,26 @@ function retrieveOrders() {
   });
 }
 
+function retrieveOrderById(orderId: number) {
+  return prisma.order.findUnique({
+    where: { id: orderId },
+  });
+}
+
+function updateOrderStatus(newStatus: OrderStatus, orderId: number) {
+  return prisma.order.update({
+    where: { id: orderId },
+    data: {
+      orderStatus: newStatus,
+    },
+  });
+}
+
 export const ordersRepository = {
   retrieveMaxId,
   createOrder,
   createItem,
   retrieveOrders,
+  retrieveOrderById,
+  updateOrderStatus,
 };
