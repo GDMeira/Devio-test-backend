@@ -4,7 +4,7 @@ import app, { close, init } from '@/app';
 import { prisma } from '@/config';
 import { faker } from '@faker-js/faker';
 import { cleanDb } from '../helpers';
-import { generateItens, generateOrder } from '../factories';
+import { createOrder, generateItens, generateOrder } from '../factories';
 
 const server = supertest(app);
 
@@ -134,5 +134,63 @@ describe('POST /orders', () => {
     const response = await server.post('/orders').send(order);
 
     expect(response.status).toBe(httpStatus.BAD_REQUEST);
+  });
+});
+
+describe('GET /orders', () => {
+  it('should respond with status 200 and the orders with status processing or ready', async () => {
+    await createOrder();
+
+    const response = await server.get('/orders');
+
+    type Product = {
+      name: string;
+      image: string;
+    };
+
+    type Extra = {
+      name: string;
+    };
+
+    type Item = {
+      note: string | null;
+      quantity: number;
+      product: Product;
+      extras: Extra[];
+    };
+
+    type ExpectedOrderShape = {
+      id: number;
+      clientName: string;
+      orderStatus: string;
+      itens: Item[];
+    };
+
+    const expectedOrderShape: ExpectedOrderShape = {
+      id: expect.any(Number),
+      clientName: expect.any(String),
+      orderStatus: expect.any(String),
+      itens: expect.arrayContaining([
+        expect.objectContaining<Item>({
+          note: expect.any(String),
+          quantity: expect.any(Number),
+          product: expect.objectContaining<Product>({
+            name: expect.any(String),
+            image: expect.any(String),
+          }),
+          extras: expect.arrayContaining([
+            expect.objectContaining<Extra>({
+              name: expect.any(String),
+            }),
+          ]),
+        }),
+      ]),
+    };
+
+    expect(response.status).toBe(httpStatus.OK);
+    expect(response.body).toEqual({
+      processing: expect.arrayContaining([expect.objectContaining<ExpectedOrderShape>(expectedOrderShape)]),
+      ready: expect.arrayContaining([expect.objectContaining<ExpectedOrderShape>(expectedOrderShape)]),
+    });
   });
 });

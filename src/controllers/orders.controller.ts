@@ -15,3 +15,9 @@ export async function postOrder(req: Request, res: Response) {
 
   res.status(httpStatus.CREATED).send({ code: createdOrder.id });
 }
+
+export async function getOrders(_req: Request, res: Response) {
+  const orders = await ordersService.getOrders();
+
+  res.status(httpStatus.OK).send(orders);
+}
