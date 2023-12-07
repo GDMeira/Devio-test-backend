@@ -1,6 +1,6 @@
 import { prisma } from '@/config';
 import { CheckedItem, CheckedOrder } from '@/protocols';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { OrderStatus, Prisma, PrismaClient } from '@prisma/client';
 
 function retrieveMaxId() {
   return prisma.order.aggregate({
@@ -24,8 +24,62 @@ function createItem(item: CheckedItem, db: PrismaClient | Prisma.TransactionClie
   });
 }
 
+function retrieveOrders() {
+  return prisma.order.findMany({
+    where: { orderStatus: { in: [OrderStatus.PROCESSING, OrderStatus.READY] } },
+    orderBy: [
+      {
+        orderStatus: 'asc',
+      },
+      {
+        createdAt: 'asc',
+      },
+    ],
+    select: {
+      id: true,
+      clientName: true,
+      orderStatus: true,
+      itens: {
+        select: {
+          note: true,
+          quantity: true,
+          product: {
+            select: {
+              image: true,
+              name: true,
+            },
+          },
+          extras: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+function retrieveOrderById(orderId: number) {
+  return prisma.order.findUnique({
+    where: { id: orderId },
+  });
+}
+
+function updateOrderStatus(newStatus: OrderStatus, orderId: number) {
+  return prisma.order.update({
+    where: { id: orderId },
+    data: {
+      orderStatus: newStatus,
+    },
+  });
+}
+
 export const ordersRepository = {
   retrieveMaxId,
   createOrder,
   createItem,
+  retrieveOrders,
+  retrieveOrderById,
+  updateOrderStatus,
 };

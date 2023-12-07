@@ -1,7 +1,8 @@
 import { prisma } from '@/config';
-import { notFoundError, unavaiable } from '@/errors';
+import { notFoundError, conflictOrderPatch, unavaiable } from '@/errors';
 import { CheckedItem, CheckedOrder, ReceivedItem, ReceivedOrder } from '@/protocols';
 import { extrasRepository, ordersRepository, productsRepository } from '@/repositories';
+import { OrderStatus } from '@prisma/client';
 
 async function getCode(): Promise<number> {
   const maxId = await ordersRepository.retrieveMaxId();
@@ -85,7 +86,45 @@ async function postOrder(order: ReceivedOrder) {
   return createdOrder;
 }
 
+async function getOrders() {
+  const orders = await ordersRepository.retrieveOrders();
+  type SegregatedOrders = {
+    processing: typeof orders;
+    ready: typeof orders;
+  };
+
+  const segregatedOrders: SegregatedOrders = { processing: [], ready: [] };
+
+  orders.forEach(order => {
+    if (order.orderStatus === OrderStatus.PROCESSING) {
+      segregatedOrders.processing.push(order);
+    } else {
+      segregatedOrders.ready.push(order);
+    }
+  });
+
+  return segregatedOrders;
+}
+
+async function validateOrder(orderId: number) {
+  const orderDB = await ordersRepository.retrieveOrderById(orderId);
+
+  if (!orderDB) {
+    throw notFoundError('order');
+  }
+  if (orderDB.orderStatus === OrderStatus.CANCELED || orderDB.orderStatus === OrderStatus.DELIVERED) {
+    throw conflictOrderPatch(orderDB.orderStatus);
+  }
+}
+
+async function patchOrder(newStatus: OrderStatus, orderId: number) {
+  await validateOrder(orderId);
+  await ordersRepository.updateOrderStatus(newStatus, orderId);
+}
+
 export const ordersService = {
   getCode,
   postOrder,
+  getOrders,
+  patchOrder,
 };

@@ -3,8 +3,9 @@ import supertest from 'supertest';
 import app, { close, init } from '@/app';
 import { prisma } from '@/config';
 import { faker } from '@faker-js/faker';
+import { OrderStatus } from '@prisma/client';
 import { cleanDb } from '../helpers';
-import { generateItens, generateOrder } from '../factories';
+import { createOneOrder, createOrder, generateItens, generateOrder } from '../factories';
 
 const server = supertest(app);
 
@@ -134,5 +135,172 @@ describe('POST /orders', () => {
     const response = await server.post('/orders').send(order);
 
     expect(response.status).toBe(httpStatus.BAD_REQUEST);
+  });
+});
+
+describe('GET /orders', () => {
+  it('should respond with status 200 and the orders with status processing or ready', async () => {
+    await createOrder();
+
+    const response = await server.get('/orders');
+
+    type Product = {
+      name: string;
+      image: string;
+    };
+
+    type Extra = {
+      name: string;
+    };
+
+    type Item = {
+      note: string | null;
+      quantity: number;
+      product: Product;
+      extras: Extra[];
+    };
+
+    type ExpectedOrderShape = {
+      id: number;
+      clientName: string;
+      orderStatus: string;
+      itens: Item[];
+    };
+
+    const expectedOrderShape: ExpectedOrderShape = {
+      id: expect.any(Number),
+      clientName: expect.any(String),
+      orderStatus: expect.any(String),
+      itens: expect.arrayContaining([
+        expect.objectContaining<Item>({
+          note: expect.any(String),
+          quantity: expect.any(Number),
+          product: expect.objectContaining<Product>({
+            name: expect.any(String),
+            image: expect.any(String),
+          }),
+          extras: expect.arrayContaining([
+            expect.objectContaining<Extra>({
+              name: expect.any(String),
+            }),
+          ]),
+        }),
+      ]),
+    };
+
+    expect(response.status).toBe(httpStatus.OK);
+    expect(response.body).toEqual({
+      processing: expect.arrayContaining([expect.objectContaining<ExpectedOrderShape>(expectedOrderShape)]),
+      ready: expect.arrayContaining([expect.objectContaining<ExpectedOrderShape>(expectedOrderShape)]),
+    });
+  });
+});
+
+describe('PATCH /orders/:orderId', () => {
+  it('should respond with status 204 and update the order status to ready', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = OrderStatus.READY;
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.NO_CONTENT);
+    expect(updatedOrder.orderStatus).toBe(newStatus);
+  });
+
+  it('should respond with status 204 and update the order status to canceld', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = OrderStatus.CANCELED;
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.NO_CONTENT);
+    expect(updatedOrder.orderStatus).toBe(newStatus);
+  });
+
+  it('should respond with status 204 and update the order status to delivered', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = OrderStatus.DELIVERED;
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.NO_CONTENT);
+    expect(updatedOrder.orderStatus).toBe(newStatus);
+  });
+
+  it('should respond with status 404 if the order does not exist', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = OrderStatus.DELIVERED;
+
+    const response = await server.patch(`/orders/${order.id + 1}`).send({ newStatus });
+
+    expect(response.status).toBe(httpStatus.NOT_FOUND);
+  });
+
+  it('should respond with status 422 if the new status is not valid', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = faker.lorem.word();
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.UNPROCESSABLE_ENTITY);
+    expect(updatedOrder.orderStatus).toBe(order.orderStatus);
+  });
+
+  it('should respond with status 422 if the orderId is not valid', async () => {
+    const order = await createOneOrder(OrderStatus.PROCESSING);
+    const newStatus = OrderStatus.READY;
+
+    const response = await server.patch(`/orders/${faker.number.float({ min: -100, max: 0 })}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.UNPROCESSABLE_ENTITY);
+    expect(updatedOrder.orderStatus).toBe(order.orderStatus);
+  });
+
+  it('should respond with status 401 if the order is already delivered', async () => {
+    const order = await createOneOrder(OrderStatus.DELIVERED);
+    const newStatus = OrderStatus.READY;
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.CONFLICT);
+    expect(updatedOrder.orderStatus).toBe(order.orderStatus);
+  });
+
+  it('should respond with status 401 if the order is already canceled', async () => {
+    const order = await createOneOrder(OrderStatus.CANCELED);
+    const newStatus = OrderStatus.READY;
+
+    const response = await server.patch(`/orders/${order.id}`).send({ newStatus });
+
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+    });
+
+    expect(response.status).toBe(httpStatus.CONFLICT);
+    expect(updatedOrder.orderStatus).toBe(order.orderStatus);
   });
 });
