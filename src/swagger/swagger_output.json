@@ -17,7 +17,7 @@
         }
       }
     },
-    "/code": {
+    "/orders/code": {
       "get": {
         "summary": "Get Order Code",
         "description": "Generates a code for the order",
@@ -29,6 +29,15 @@
       }
     },
     "/orders": {
+      "get": {
+        "summary": "Get Orders",
+        "description": "Fetches all orders",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
       "post": {
         "summary": "Place Order",
         "description": "Creates a new order",
@@ -63,6 +72,38 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/orders/{orderId}": {
+      "patch": {
+        "summary": "Update Order Status",
+        "description": "Updates the status of a specific order",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of the order to update"
+          }
+        ],
+        "requestBody": {
+          "description": "New status payload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchOrderStatus"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
           }
         }
       }
@@ -142,6 +183,15 @@
           },
           "image": {
             "type": "string"
+          }
+        }
+      },
+      "PatchOrderStatus": {
+        "type": "object",
+        "properties": {
+          "newStatus": {
+            "type": "string",
+            "enum": ["CANCELED", "DELIVERED", "READY"]
           }
         }
       },

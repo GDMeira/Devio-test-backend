@@ -10,6 +10,15 @@ This API enables users to place orders, with or without observations, and choose
 
 [Documentation](https://ordermanager-api.onrender.com/doc)
 
+## Technologies
+
+* **TypeScript:** to assist in development.
+* **Node and Express:** to construct a robust server.
+* **PrismaORM:** to handle DB versioning and communicate with the database.
+* **ESLint:** to ensure the code follows good patterns.
+* **Jest and supertest:** for automated API testing, ensuring the API functions correctly and securely.
+* **Swagger:** for displaying the OpenAPI documentation of the OrderManager API.
+
 ## How to run for development
 
 1. Clone this repository

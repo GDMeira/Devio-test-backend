@@ -15,7 +15,7 @@
     "build": "tsc -p tsconfig.build.json && tsc-alias && npm run migration:run && npm run seed",
     "seed": "prisma db seed",
     "start": "node dist/server.js",
-    "migration:run": "prisma migrate deploy",
+    "migration:run": "prisma migrate dev",
     "migration:generate": "npm run dev:load-envs prisma migrate dev",
     "test": "npm run test:load-envs cross-env NODE_ENV=test -- jest -- --runInBand --passWithNoTests --detectOpenHandles",
     "test:coverage": "npm run test:load-envs -- jest -- --coverage --runInBand",
